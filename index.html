@@ -1,0 +1,140 @@
+<style>
+  canvas {
+    display: block;
+  }
+</style>
+
+<canvas></canvas>
+
+<div>
+  <input id="color1" type="color" value="#ff0000" onchange="updateColors()">
+  <input id="color2" type="color" value="#ffa500" onchange="updateColors()">
+  <input id="color3" type="color" value="#ffff00" onchange="updateColors()">
+</div>
+
+<div>
+  <label for="">Height</label>
+  <input id="height-input" type="number" value="200" onchange="updateDimensions()">
+  <label for="">Width</label>
+  <input id="width-input" type="number" value="200" onchange="updateDimensions()">
+</div>
+
+<div>
+  <label for="">Speed</label>
+  <input id="speed-input" type="number" value="10" onchange="updateSpeed()">
+</div>
+
+<div>
+  <label for="">Bleed Rate</label>
+  <input id="bleed-input" type="number" value="2" onchange="updateBleed()">
+</div>
+
+<script>
+
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 200;
+    canvas.height = 200;
+
+    //paintCanvas(canvas);
+
+
+    var lastColor = "";
+
+    const colors = [
+      "red", "orange", "yellow"
+    ];
+
+    var bleed = 2;
+    function getFillStyle(x,y) {
+      if(!x && !y) return getRandomColor();
+
+      const useRandomColor = !getRandomInt(0,bleed);
+      if(useRandomColor) {
+        return getRandomColor();
+      } else {
+        if(x === 0 && y===0) {
+          return getRandomColor();
+        }
+        if(x === 0) {
+          return pixels[x][y-1];
+        }
+        if(y === 0) {
+          return pixels[x-1][y];
+        }
+        const usePixelAbove = !!getRandomInt(0,2);
+        if(usePixelAbove) {
+          return pixels[x-1][y];
+        } else {
+          return pixels[x][y-1];
+        }
+      }
+    }
+
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    }
+
+
+
+    var x = 0;
+    var y = 0;
+    var pixels = [];
+    setInterval(()=>{
+      for(let i=0; i<speed; i++) {
+        drawPixel();
+        //drawPixelAtRandom();
+      }
+    },1);
+
+    function getRandomColor() {
+      const randomColorIndex = getRandomInt(0, colors.length);
+      return colors[randomColorIndex];
+    }
+
+    function drawPixel() {
+      ctx.fillStyle = getFillStyle(x,y);
+      ctx.fillRect(x,y,1,1);
+      if(!pixels[x]) pixels[x] = [];
+      pixels[x][y] = ctx.fillStyle;
+      x++;
+      if(x >= canvas.width) {
+        x = 0;
+        y++;
+      }
+      if(y >= canvas.height) {
+        y=0;
+      }
+    }
+
+    function updateColors() {
+      colors[0] = document.querySelector('#color1').value;
+      colors[1] = document.querySelector('#color2').value;
+      colors[2] = document.querySelector('#color3').value;
+    }
+
+    function updateDimensions() {
+      canvas.height = document.getElementById('height-input').value;
+      canvas.width = document.getElementById('width-input').value;
+    }
+
+    var speed = 10;
+    function updateSpeed() {
+      speed = document.getElementById('speed-input').value;
+    }
+
+    function updateBleed() {
+      bleed = document.getElementById('bleed-input').value;
+    }
+
+    function drawPixelAtRandom() {
+      const x = getRandomInt(0, canvas.width);
+      const y = getRandomInt(0, canvas.height);
+      ctx.fillStyle = getFillStyle(x,y);
+      ctx.fillRect(x,y,1,1);
+    }
+
+</script>
